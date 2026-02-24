@@ -1,0 +1,92 @@
+# Dependencies
+node_modules/
+packages/*/node_modules/
+packages/frontend/node_modules/
+packages/backend/*/node_modules/
+
+# Build outputs
+dist/
+build/
+packages/*/dist/
+packages/frontend/dist/
+packages/backend/*/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test coverage
+coverage/
+packages/*/coverage/
+packages/backend/*/coverage/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Cache
+.cache/
+.parcel-cache/
+.swc/
+.eslintcache
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
+
+# Package lock files (optional - use pnpm-lock.yaml or yarn.lock)
+package-lock.json
+
+# NestJS specific
+*.tsbuildinfo
+ nestservices
+
+# Frontend specific
+packages/frontend/.vite/
+packages/frontend/dist-ssr/
+
+# Test files
+*.spec.ts
+*.test.ts
+__tests__/
+*.test.js
+*.spec.js
+jest.config.js
+
+# Monitoring
+monitoring/data/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Secrets and credentials
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx

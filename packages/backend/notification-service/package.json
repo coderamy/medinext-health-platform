@@ -1,0 +1,16 @@
+{
+  "name": "@medinext/notification-service",
+  "version": "1.0.0",
+  "description": "MediNext Notification Service - SMS, Email, Push notifications",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "test": "jest --config ../../packages/backend/shared/jest.config.js"
+  },
+  "dependencies": {
+    "@medinext/shared": "*"
+  }
+}

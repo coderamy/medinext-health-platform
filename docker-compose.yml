@@ -1,0 +1,460 @@
+version: '3.8'
+
+# Usage:
+# - docker compose --profile core up        : Minimal services (API Gateway, Auth, Patient, Provider, Appointment)
+# - docker compose --profile extended up    : Core + Hospital, Pharmacy, Lab
+# - docker compose --profile full up       : All services
+# - docker compose up                      : Infrastructure only (postgres, redis)
+
+services:
+  # Infrastructure - Always running
+  postgres:
+    image: postgres:15-alpine
+    container_name: medinext-postgres
+    environment:
+      POSTGRES_USER: medinext
+      POSTGRES_PASSWORD: medinext_secret
+      POSTGRES_DB: medinext
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - medinext-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medinext"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: medinext-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - medinext-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================
+  # CORE SERVICES (--profile core)
+  # Minimal set for development: Auth, Patient, Provider, Appointment, Gateway
+  # ============================================================
+  
+  # API Gateway - Required for all profiles
+  api-gateway:
+    build:
+      context: .
+      dockerfile: packages/backend/api-gateway/Dockerfile
+    container_name: medinext-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - PATIENT_SERVICE_URL=http://patient-service:3004
+      - PROVIDER_SERVICE_URL=http://provider-service:3005
+      - HOSPITAL_SERVICE_URL=http://hospital-service:3006
+      - PHARMACY_SERVICE_URL=http://pharmacy-service:3007
+      - LAB_SERVICE_URL=http://lab-service:3008
+      - APPOINTMENT_SERVICE_URL=http://appointment-service:3003
+      - BLOOD_BANK_SERVICE_URL=http://blood-bank-service:3009
+      - ORGAN_DONOR_SERVICE_URL=http://organ-donor-service:3011
+      - INSURANCE_SERVICE_URL=http://insurance-service:3012
+      - EMERGENCY_SERVICE_URL=http://emergency-service:3013
+      - AI_SERVICE_URL=http://ai-service:3014
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3015
+    depends_on:
+      auth-service:
+        condition: service_started
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - core
+      - extended
+      - full
+
+  # Auth Service - Core
+  auth-service:
+    build:
+      context: .
+      dockerfile: packages/backend/auth-service/Dockerfile
+    container_name: medinext-auth-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+      - JWT_SECRET=${JWT_SECRET:-medinext-secret-key}
+      - JWT_EXPIRES_IN=7d
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - core
+      - extended
+      - full
+
+  # Patient Service - Core
+  patient-service:
+    build:
+      context: .
+      dockerfile: packages/backend/patient-service/Dockerfile
+    container_name: medinext-patient-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - core
+      - extended
+      - full
+
+  # Provider Service - Core
+  provider-service:
+    build:
+      context: .
+      dockerfile: packages/backend/provider-service/Dockerfile
+    container_name: medinext-provider-service
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=production
+      - PORT=3005
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - core
+      - extended
+      - full
+
+  # Appointment Service - Core
+  appointment-service:
+    build:
+      context: .
+      dockerfile: packages/backend/appointment-service/Dockerfile
+    container_name: medinext-appointment-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - core
+      - extended
+      - full
+
+  # ============================================================
+  # EXTENDED SERVICES (--profile extended)
+  # Core + Hospital, Pharmacy, Lab
+  # ============================================================
+
+  # Hospital Service - Extended
+  hospital-service:
+    build:
+      context: .
+      dockerfile: packages/backend/hospital-service/Dockerfile
+    container_name: medinext-hospital-service
+    ports:
+      - "3006:3006"
+    environment:
+      - NODE_ENV=production
+      - PORT=3006
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - extended
+      - full
+
+  # Pharmacy Service - Extended
+  pharmacy-service:
+    build:
+      context: .
+      dockerfile: packages/backend/pharmacy-service/Dockerfile
+    container_name: medinext-pharmacy-service
+    ports:
+      - "3007:3007"
+    environment:
+      - NODE_ENV=production
+      - PORT=3007
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - extended
+      - full
+
+  # Lab Service - Extended
+  lab-service:
+    build:
+      context: .
+      dockerfile: packages/backend/lab-service/Dockerfile
+    container_name: medinext-lab-service
+    ports:
+      - "3008:3008"
+    environment:
+      - NODE_ENV=production
+      - PORT=3008
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - extended
+      - full
+
+  # ============================================================
+  # FULL SERVICES (--profile full)
+  # All 13 microservices + infrastructure
+  # ============================================================
+
+  # Blood Bank Service - Full
+  blood-bank-service:
+    build:
+      context: .
+      dockerfile: packages/backend/blood-bank-service/Dockerfile
+    container_name: medinext-blood-bank-service
+    ports:
+      - "3009:3009"
+    environment:
+      - NODE_ENV=production
+      - PORT=3009
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Organ Donor Service - Full
+  organ-donor-service:
+    build:
+      context: .
+      dockerfile: packages/backend/organ-donor-service/Dockerfile
+    container_name: medinext-organ-donor-service
+    ports:
+      - "3011:3011"
+    environment:
+      - NODE_ENV=production
+      - PORT=3011
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Insurance Service - Full
+  insurance-service:
+    build:
+      context: .
+      dockerfile: packages/backend/insurance-service/Dockerfile
+    container_name: medinext-insurance-service
+    ports:
+      - "3012:3012"
+    environment:
+      - NODE_ENV=production
+      - PORT=3012
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Emergency Service - Full
+  emergency-service:
+    build:
+      context: .
+      dockerfile: packages/backend/emergency-service/Dockerfile
+    container_name: medinext-emergency-service
+    ports:
+      - "3013:3013"
+    environment:
+      - NODE_ENV=production
+      - PORT=3013
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # AI Service - Full
+  ai-service:
+    build:
+      context: .
+      dockerfile: packages/backend/ai-service/Dockerfile
+    container_name: medinext-ai-service
+    ports:
+      - "3014:3014"
+    environment:
+      - NODE_ENV=production
+      - PORT=3014
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=medinext
+      - DB_PASSWORD=medinext_secret
+      - DB_NAME=medinext
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # Notification Service - Full
+  notification-service:
+    build:
+      context: .
+      dockerfile: packages/backend/notification-service/Dockerfile
+    container_name: medinext-notification-service
+    ports:
+      - "3015:3015"
+    environment:
+      - NODE_ENV=production
+      - PORT=3015
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - full
+
+  # ============================================================
+  # FRONTEND SERVICE
+  # React frontend with all services
+  # ============================================================
+  
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    container_name: medinext-frontend
+    ports:
+      - "5173:5173"
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://api-gateway:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - medinext-network
+    restart: unless-stopped
+    profiles:
+      - core
+      - extended
+      - full
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  medinext-network:
+    driver: bridge

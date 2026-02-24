@@ -1,0 +1,47 @@
+{
+  "name": "@medinext/monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MediNext Health-Tech Unicorn Platform - Monorepo",
+  "workspaces": [
+    "packages/backend/shared",
+    "packages/backend/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:shared": "cd packages/backend/shared && npm run build",
+    "build:services": "npm run build --workspaces --if-present",
+    "start": "npm run start --workspaces --if-present",
+    "start:dev": "npm run start:dev --workspaces --if-present",
+    "start:all": "npm-run-all --parallel start:all:*",
+    "start:all:auth": "npm run start:dev --workspace=@medinext/auth-service",
+    "start:all:gateway": "npm run start:dev --workspace=@medinext/api-gateway",
+    "start:all:patient": "npm run start:dev --workspace=@medinext/patient-service",
+    "start:all:provider": "npm run start:dev --workspace=@medinext/provider-service",
+    "start:all:appointment": "npm run start:dev --workspace=@medinext/appointment-service",
+    "start:all:hospital": "npm run start:dev --workspace=@medinext/hospital-service",
+    "start:all:pharmacy": "npm run start:dev --workspace=@medinext/pharmacy-service",
+    "start:all:lab": "npm run start:dev --workspace=@medinext/lab-service",
+    "start:all:bloodbank": "npm run start:dev --workspace=@medinext/blood-bank-service",
+    "start:all:organdonor": "npm run start:dev --workspace=@medinext/organ-donor-service",
+    "start:all:insurance": "npm run start:dev --workspace=@medinext/insurance-service",
+    "start:all:emergency": "npm run start:dev --workspace=@medinext/emergency-service",
+    "start:all:ai": "npm run start:dev --workspace=@medinext/ai-service",
+    "start:all:notification": "npm run start:dev --workspace=@medinext/notification-service",
+    "test": "jest --config jest.config.js",
+    "test:watch": "jest --config jest.config.js --watch",
+    "lint": "npm run lint --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "npm-run-all": "^4.1.5",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}

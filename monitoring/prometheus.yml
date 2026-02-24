@@ -1,0 +1,128 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'medinext'
+    environment: 'development'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['api-gateway:3000']
+    metrics_path: '/metrics'
+
+  # Auth Service
+  - job_name: 'auth-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['auth-service:3001']
+    metrics_path: '/metrics'
+
+  # Patient Service
+  - job_name: 'patient-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['patient-service:3002']
+    metrics_path: '/metrics'
+
+  # Hospital Service
+  - job_name: 'hospital-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['hospital-service:3003']
+    metrics_path: '/metrics'
+
+  # Pharmacy Service
+  - job_name: 'pharmacy-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['pharmacy-service:3004']
+    metrics_path: '/metrics'
+
+  # Lab Service
+  - job_name: 'lab-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['lab-service:3005']
+    metrics_path: '/metrics'
+
+  # Insurance Service
+  - job_name: 'insurance-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['insurance-service:3006']
+    metrics_path: '/metrics'
+
+  # Blood Bank Service
+  - job_name: 'blood-bank-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['blood-bank-service:3007']
+    metrics_path: '/metrics'
+
+  # Organ Donor Service
+  - job_name: 'organ-donor-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['organ-donor-service:3008']
+    metrics_path: '/metrics'
+
+  # Emergency Service
+  - job_name: 'emergency-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['emergency-service:3009']
+    metrics_path: '/metrics'
+
+  # Appointment Service
+  - job_name: 'appointment-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['appointment-service:3010']
+    metrics_path: '/metrics'
+
+  # AI Service
+  - job_name: 'ai-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['ai-service:3011']
+    metrics_path: '/metrics'
+
+  # Notification Service
+  - job_name: 'notification-service'
+    scrape_interval: 10s
+    static_configs:
+      - targets: ['notification-service:3012']
+    metrics_path: '/metrics'
+
+  # Node Exporter for system metrics
+  - job_name: 'node'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Redis Exporter
+  - job_name: 'redis'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # PostgreSQL Exporter
+  - job_name: 'postgres'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['postgres-exporter:9187']

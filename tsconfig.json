@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "moduleResolution": "node",
+    "rootDir": "./",
+    "baseUrl": "./packages",
+    "paths": {
+      "@shared/*": ["shared/src/*"],
+      "@api-gateway/*": ["api-gateway/src/*"],
+      "@auth-service/*": ["auth-service/src/*"],
+      "@patient-service/*": ["patient-service/src/*"],
+      "@provider-service/*": ["provider-service/src/*"],
+      "@inventory-service/*": ["inventory-service/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}

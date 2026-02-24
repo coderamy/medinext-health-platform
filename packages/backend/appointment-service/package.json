@@ -1,0 +1,17 @@
+{
+  "name": "@medinext/appointment-service",
+  "version": "1.0.0",
+  "description": "MediNext Appointment Service - Scheduling, booking, calendars",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:prod": "node dist/main",
+    "test": "jest --config ../../packages/backend/shared/jest.config.js",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\""
+  },
+  "dependencies": {
+    "@medinext/shared": "*"
+  }
+}
